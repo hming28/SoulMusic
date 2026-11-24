@@ -8,15 +8,16 @@ from tkinter import ttk
 
 import pygame
 
-# Import companion module
-import spotifast_companion
-from spotifast_companion import (
-    SpotifastCompanionApp,
+# Import soulmusic module
+import soulmusic
+from soulmusic import (
+    SoulMusicApp,
     format_time,
     parse_spotify_track_info,
     SPOTIFY_TRACK_REGEX,
     AUDIO_CACHE_DIR,
 )
+SpotifastCompanionApp = SoulMusicApp
 
 
 class TestPhase1AudioCoreAndControls(unittest.TestCase):

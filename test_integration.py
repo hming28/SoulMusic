@@ -1,9 +1,10 @@
-import os
+﻿import os
 import shutil
 import time
 import tkinter as tk
 import pygame
-from spotifast_companion import SpotifastCompanionApp, AUDIO_CACHE_DIR
+from soulmusic import SoulMusicApp, AUDIO_CACHE_DIR
+SpotifastCompanionApp = SoulMusicApp
 
 
 def test_integration():
@@ -12,8 +13,8 @@ def test_integration():
     app = SpotifastCompanionApp(root)
 
     # 1. Test manual search with an existing cached track or search
-    print("1. Testing resolve_and_play for '七里香'...")
-    app.resolve_and_play("七里香")
+    print("1. Testing resolve_and_play for 'Classical Song'...")
+    app.resolve_and_play("Classical Song")
 
     # Wait up to 5 seconds for track to resolve and start playback
     for _ in range(50):
@@ -103,3 +104,4 @@ def test_integration():
 
 if __name__ == "__main__":
     test_integration()
+

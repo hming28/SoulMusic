@@ -130,7 +130,6 @@ powershell -ExecutionPolicy Bypass -File .\get_ffmpeg.ps1
 ```text
 SoulMusic/
 ├── soulmusic.py             # 播放器核心主程序 (支持双主题与音频引擎)
-├── spotifast_companion.py   # 向后兼容入口
 ├── requirements.txt         # 核心 Python 依赖包清单
 ├── get_ffmpeg.ps1           # FFmpeg 组件自动下载脚本 (Windows)
 ├── 启动SoulMusic.bat        # Windows 便携双击启动脚本
