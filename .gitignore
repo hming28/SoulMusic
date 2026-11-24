@@ -52,3 +52,8 @@ Desktop.ini
 
 # Logs
 *.log
+
+# User local state
+config.json
+queue.json
+*.json.tmp
