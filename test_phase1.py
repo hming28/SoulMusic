@@ -125,7 +125,7 @@ class TestPhase1AudioCoreAndControls(unittest.TestCase):
         self.assertFalse(self.app.is_paused)
         self.assertGreater(self.app.total_duration, 10.0)
         self.assertEqual(self.app.current_file, self.test_mp3)
-        self.assertEqual(self.app.btn_play_pause.cget("text"), "⏸ 暂停")
+        self.assertEqual(self.app.btn_play_pause.cget("text"), self.app.t("pause"))
 
         expected_total_str = format_time(self.app.total_duration)
         self.assertEqual(self.app.time_total_label.cget("text"), expected_total_str)
@@ -162,17 +162,17 @@ class TestPhase1AudioCoreAndControls(unittest.TestCase):
         self.app.start_playback(self.test_mp3, start_sec=0.0)
         self.assertTrue(self.app.is_playing)
         self.assertFalse(self.app.is_paused)
-        self.assertEqual(self.app.btn_play_pause.cget("text"), "⏸ 暂停")
+        self.assertEqual(self.app.btn_play_pause.cget("text"), self.app.t("pause"))
 
         # Pause
         self.app.toggle_play_pause()
         self.assertTrue(self.app.is_paused)
-        self.assertEqual(self.app.btn_play_pause.cget("text"), "▶ 继续")
+        self.assertEqual(self.app.btn_play_pause.cget("text"), self.app.t("resume"))
 
         # Unpause
         self.app.toggle_play_pause()
         self.assertFalse(self.app.is_paused)
-        self.assertEqual(self.app.btn_play_pause.cget("text"), "⏸ 暂停")
+        self.assertEqual(self.app.btn_play_pause.cget("text"), self.app.t("pause"))
 
     def test_07_stop_music(self):
         """Verify stop music resets state, slider, and timer labels"""
@@ -184,7 +184,7 @@ class TestPhase1AudioCoreAndControls(unittest.TestCase):
         self.assertEqual(self.app.seek_offset_seconds, 0.0)
         self.assertEqual(self.app.progress_scale.get(), 0.0)
         self.assertEqual(self.app.time_curr_label.cget("text"), "00:00")
-        self.assertEqual(self.app.btn_play_pause.cget("text"), "▶ 播放")
+        self.assertEqual(self.app.btn_play_pause.cget("text"), self.app.t("play"))
         self.assertFalse(pygame.mixer.music.get_busy())
 
     def test_08_spacebar_focus_guard(self):
@@ -404,6 +404,33 @@ class TestPhase1AudioCoreAndControls(unittest.TestCase):
         self.assertEqual(self.app.theme_mode, "light")
         self.assertEqual(self.app.search_entry.cget("bg"), "#FFFFFF")
         self.assertEqual(self.app.search_entry.cget("fg"), "#111827")
+
+    def test_20_language_toggle(self):
+        """Verify default language is English and toggles between English and Chinese"""
+        # 1. Default language must be English
+        self.assertEqual(self.app.lang, "en")
+        self.assertEqual(self.app.btn_lang.cget("text"), "🌐 中文")
+        self.assertEqual(self.app.btn_prev.cget("text"), "⏮ Prev")
+        self.assertEqual(self.app.btn_stop.cget("text"), "⏹ Stop")
+        self.assertEqual(self.app.btn_next.cget("text"), "⏭ Next")
+        self.assertEqual(self.app.vol_label.cget("text"), "🔊 Volume:")
+        self.assertEqual(self.app.search_btn.cget("text"), "🔍 Play / Search")
+
+        # 2. Toggle to Chinese
+        self.app.toggle_language()
+        self.assertEqual(self.app.lang, "zh")
+        self.assertEqual(self.app.btn_lang.cget("text"), "🌐 EN")
+        self.assertEqual(self.app.btn_prev.cget("text"), "⏮ 上一首")
+        self.assertEqual(self.app.btn_stop.cget("text"), "⏹ 停止")
+        self.assertEqual(self.app.btn_next.cget("text"), "⏭ 下一首")
+        self.assertEqual(self.app.vol_label.cget("text"), "🔊 音量:")
+        self.assertEqual(self.app.search_btn.cget("text"), "🔍 播放 / 搜索")
+
+        # 3. Toggle back to English
+        self.app.toggle_language()
+        self.assertEqual(self.app.lang, "en")
+        self.assertEqual(self.app.btn_lang.cget("text"), "🌐 中文")
+        self.assertEqual(self.app.btn_prev.cget("text"), "⏮ Prev")
 
 
 if __name__ == "__main__":

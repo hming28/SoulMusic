@@ -18,41 +18,121 @@ try:
     from yt_dlp import YoutubeDL
     import pyperclip
 except ImportError as e:
-    print(f"缺少必要依赖: {e}")
+    print(f"Missing required dependency: {e}")
     sys.exit(1)
 
-# 基础目录与二进制路径 (支持动态相对路径、本地目录与系统环境变量 fallback)
+# Base directory and binary paths (dynamic relative path with fallback)
 APP_DIR = os.path.dirname(os.path.abspath(__file__)) if "__file__" in locals() or "__file__" in globals() else os.path.abspath(os.getcwd())
 FFPLAY_BIN = os.path.join(APP_DIR, "ffplay.exe")
 FFMPEG_BIN = os.path.join(APP_DIR, "ffmpeg.exe")
 
 if not os.path.exists(FFMPEG_BIN):
-    which_ffmpeg = shutil.which("ffmpeg")
-    if which_ffmpeg:
-        FFMPEG_BIN = which_ffmpeg
+    for fallback_dir in [r"D:\Spotifast", os.path.join(os.path.dirname(APP_DIR), "Spotifast")]:
+        cand = os.path.join(fallback_dir, "ffmpeg.exe")
+        if os.path.exists(cand):
+            FFMPEG_BIN = cand
+            break
+    if not os.path.exists(FFMPEG_BIN):
+        which_ffmpeg = shutil.which("ffmpeg")
+        if which_ffmpeg:
+            FFMPEG_BIN = which_ffmpeg
 
 if not os.path.exists(FFPLAY_BIN):
-    which_ffplay = shutil.which("ffplay")
-    if which_ffplay:
-        FFPLAY_BIN = which_ffplay
+    for fallback_dir in [r"D:\Spotifast", os.path.join(os.path.dirname(APP_DIR), "Spotifast")]:
+        cand = os.path.join(fallback_dir, "ffplay.exe")
+        if os.path.exists(cand):
+            FFPLAY_BIN = cand
+            break
+    if not os.path.exists(FFPLAY_BIN):
+        which_ffplay = shutil.which("ffplay")
+        if which_ffplay:
+            FFPLAY_BIN = which_ffplay
 
 AUDIO_CACHE_DIR = os.path.join(APP_DIR, "cache")
 os.makedirs(AUDIO_CACHE_DIR, exist_ok=True)
 
-# 初始化底层音频引擎 (pygame.mixer)
+# Initialize audio engine (pygame.mixer)
 try:
     pygame.mixer.init(frequency=44100, size=-16, channels=2)
 except Exception as e:
-    print(f"pygame.mixer 初始化异常: {e}")
+    print(f"pygame.mixer initialization error: {e}")
 
 ytmusic = YTMusic()
 
-# Spotify 单曲匹配正则 (支持国际化前缀、带参数链接与 spotify:track: URI)
+# Spotify track regex pattern
 SPOTIFY_TRACK_REGEX = re.compile(r"spotify(?::track:|(?:\.com/(?:[a-zA-Z-]+/)?track/))([a-zA-Z0-9]+)")
+
+# Internationalization dictionary (Default: English)
+I18N = {
+    "en": {
+        "title": "SoulMusic - Music Companion Player",
+        "ready": "Ready - Copy a Spotify track link or search below",
+        "idle": "Status: Idle (Listening to clipboard...)",
+        "search_btn": "🔍 Play / Search",
+        "theme_dark": "🌙 Dark",
+        "theme_light": "☀️ Light",
+        "lang_toggle": "🌐 中文",
+        "prev": "⏮ Prev",
+        "play": "⏯ Play",
+        "pause": "⏸ Pause",
+        "resume": "▶ Resume",
+        "stop": "⏹ Stop",
+        "next": "⏭ Next",
+        "volume": "🔊 Volume:",
+        "hint": "💡 Shortcuts: Space = Play/Pause | Drag progress bar to seek & adjust volume",
+        "detected_spotify": "Detected Spotify link, resolving...",
+        "matching": "Matching best audio source: {query}...",
+        "loading": "Loading: {query}",
+        "found_audio": "Found: {title}, preparing high-quality audio...",
+        "status_playing": "Status: Playing 🎵 ({title})",
+        "status_paused": "Status: Paused ⏸",
+        "status_stopped": "Status: Stopped ⏹",
+        "status_finished": "Status: Finished 🏁",
+        "err_resolve_spotify": "Failed to resolve Spotify link or track not found",
+        "err_no_audio": "No playable audio found for: {query}",
+        "err_fetch_audio": "Failed to fetch audio: {title}",
+        "err_seek": "Failed to seek: {err}",
+        "err_playback": "Playback failed: {err}",
+        "err_match": "Matching failed: {err}",
+        "loading_btn": "⏳ Loading",
+    },
+    "zh": {
+        "title": "SoulMusic - 音乐伴侣播放器",
+        "ready": "准备就绪 - 复制 Spotify 歌曲链接或在下方搜索",
+        "idle": "状态: 待命 (监听剪贴板中...)",
+        "search_btn": "🔍 播放 / 搜索",
+        "theme_dark": "🌙 深色",
+        "theme_light": "☀️ 浅色",
+        "lang_toggle": "🌐 EN",
+        "prev": "⏮ 上一首",
+        "play": "⏯ 播放",
+        "pause": "⏸ 暂停",
+        "resume": "▶ 继续",
+        "stop": "⏹ 停止",
+        "next": "⏭ 下一首",
+        "volume": "🔊 音量:",
+        "hint": "💡 快捷键: 空格键暂停/继续 | 支持拖拽进度条跳转与实时音量调节",
+        "detected_spotify": "侦测到 Spotify 链接，正在解析...",
+        "matching": "正在匹配最佳音源: {query}...",
+        "loading": "正在载入: {query}",
+        "found_audio": "已找到: {title}，正在准备高音质音频...",
+        "status_playing": "状态: 正在播放中 🎵 ({title})",
+        "status_paused": "状态: 已暂停 ⏸",
+        "status_stopped": "状态: 已停止 ⏹",
+        "status_finished": "状态: 播放完毕 🏁",
+        "err_resolve_spotify": "未能解析 Spotify 链接或歌曲不存在",
+        "err_no_audio": "未找到可播放的音源: {query}",
+        "err_fetch_audio": "获取音频失败: {title}",
+        "err_seek": "跳转进度失败: {err}",
+        "err_playback": "播放失败: {err}",
+        "err_match": "匹配失败: {err}",
+        "loading_btn": "⏳ 载入中",
+    },
+}
 
 
 def format_time(seconds):
-    """格式化秒数为 MM:SS 或 HH:MM:SS，支持异常输入防御"""
+    """Format seconds into MM:SS or HH:MM:SS with defensive bounds"""
     try:
         val = float(seconds)
         if val != val or val < 0 or val == float("inf"):
@@ -67,14 +147,14 @@ def format_time(seconds):
 
 
 def parse_spotify_track_info(url_or_id):
-    """从 Spotify 链接或 URI 提取 track_id，并通过公开 Embed 接口精准解析曲名、歌手与时长"""
+    """Extract track_id and query Spotify public embed API for track metadata"""
     m = SPOTIFY_TRACK_REGEX.search(url_or_id)
     if not m:
         return None
     track_id = m.group(1)
     embed_url = f"https://open.spotify.com/embed/track/{track_id}"
 
-    # 1. 优先通过公开 Embed 结构化 JSON 解析（免登录、免 key、带精确时长）
+    # 1. Parse via public Embed JSON (free, no key needed, accurate duration)
     try:
         req = urllib.request.Request(
             embed_url,
@@ -101,7 +181,7 @@ def parse_spotify_track_info(url_or_id):
     except Exception:
         pass
 
-    # 2. 备用通过标准 track 页面提取元数据并剔除常见后缀
+    # 2. Fallback to standard track page title
     try:
         norm_url = f"https://open.spotify.com/track/{track_id}"
         req = urllib.request.Request(
@@ -135,21 +215,24 @@ def parse_spotify_track_info(url_or_id):
 class SoulMusicApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("SoulMusic - 音乐伴侣播放器")
-        self.root.geometry("520x295")
+        self.root.title("SoulMusic - Music Companion Player")
+        self.root.geometry("540x295")
         self.root.resizable(False, False)
         self.root.attributes("-topmost", True)
 
-        # 默认主题模式: light (白色/浅色主题)
+        # Default language: en (English)
+        self.lang = "en"
+
+        # Default theme mode: light (White theme)
         self.theme_mode = "light"
 
-        # 线程锁与请求序列号 (彻底解决多线程与快速切歌时音频覆盖的竞争条件)
+        # Thread synchronization and request ID
         self.lock = threading.RLock()
         self.play_request_id = 0
 
-        # 状态变量
-        self.current_song = tk.StringVar(value="准备就绪 - 复制 Spotify 歌曲链接或在下方搜索")
-        self.status_text = tk.StringVar(value="状态: 待命 (监听剪贴板中...)")
+        # State variables
+        self.current_song = tk.StringVar(value=self.t("ready"))
+        self.status_text = tk.StringVar(value=self.t("idle"))
 
         self.is_playing = False
         self.is_paused = False
@@ -159,52 +242,106 @@ class SoulMusicApp:
         self.seek_offset_seconds = 0.0
         self.volume = 80
 
-        # 播放队列与索引
-        self.playlist = []  # 存储 track dict: {'title': ..., 'artist': ..., 'display': ..., 'video_id': ..., 'duration': ...}
+        # Playlist queue and index
+        self.playlist = []
         self.current_index = -1
 
-        # 线程安全 UI 调度队列
+        # Thread-safe UI dispatch queue
         self.ui_queue = queue.Queue()
 
-        # 剪贴板与历史记录
+        # Clipboard & process handles
         self.last_clipboard = ""
         self.ffplay_proc = None
 
-        # 构建界面并应用默认白色主题
+        # Build UI and apply default white theme
         self.setup_ui()
         self.apply_theme(self.theme_mode)
 
-        # 退出安全防护 (彻底解决后台残留发声与文件句柄锁定)
+        # Window exit protection
         self.root.protocol("WM_DELETE_WINDOW", self.on_window_close)
         atexit.register(self.force_cleanup)
 
-        # 全局快捷键与控件焦点防护: 空格键播放/暂停 (焦点在输入框时不触发，在按钮时不重复触发)
+        # Global hotkey protection: Space for Play/Pause
         self.root.bind_class("TButton", "<space>", self.on_spacebar)
         self.root.bind_class("Horizontal.TScale", "<space>", self.on_spacebar)
         self.root.bind("<space>", self.on_spacebar)
 
-        # 启动进度条平滑定时轮询 (每 200ms)
+        # Start playback progress polling (every 200ms)
         self.root.after(200, self.update_playback_loop)
 
-        # 启动后台剪贴板监听
+        # Start background clipboard listener
         self.clipboard_thread = threading.Thread(target=self.monitor_clipboard, daemon=True)
         self.clipboard_thread.start()
 
+    def t(self, key, **kwargs):
+        """Translate a string key into the current language"""
+        table = I18N.get(self.lang, I18N["en"])
+        template = table.get(key, I18N["en"].get(key, key))
+        if kwargs:
+            try:
+                return template.format(**kwargs)
+            except Exception:
+                return template
+        return template
+
+    def toggle_language(self):
+        """Toggle between English and Chinese"""
+        self.lang = "zh" if self.lang == "en" else "en"
+        self.update_ui_language()
+
+    def update_ui_language(self):
+        """Update all UI text when language changes"""
+        self.root.title(self.t("title"))
+        if hasattr(self, "btn_lang"):
+            self.btn_lang.config(text=self.t("lang_toggle"))
+        if hasattr(self, "btn_theme"):
+            self.btn_theme.config(text=self.t("theme_dark" if self.theme_mode == "light" else "theme_light"))
+        if hasattr(self, "search_btn"):
+            self.search_btn.config(text=self.t("search_btn"))
+        if hasattr(self, "btn_prev"):
+            self.btn_prev.config(text=self.t("prev"))
+        if hasattr(self, "btn_stop"):
+            self.btn_stop.config(text=self.t("stop"))
+        if hasattr(self, "btn_next"):
+            self.btn_next.config(text=self.t("next"))
+        if hasattr(self, "vol_label"):
+            self.vol_label.config(text=self.t("volume"))
+        if hasattr(self, "hint_label"):
+            self.hint_label.config(text=self.t("hint"))
+
+        # Update play/pause button state
+        if hasattr(self, "btn_play_pause"):
+            if self.is_playing:
+                if self.is_paused:
+                    self.btn_play_pause.config(text=self.t("resume"))
+                else:
+                    self.btn_play_pause.config(text=self.t("pause"))
+            else:
+                self.btn_play_pause.config(text=self.t("play"))
+
+        # Update default status text if not actively playing
+        if not self.is_playing and not self.is_paused:
+            if not self.current_file:
+                self.current_song.set(self.t("ready"))
+                self.status_text.set(self.t("idle"))
+            else:
+                self.status_text.set(self.t("status_stopped"))
+
     def toggle_theme(self):
-        """切换深色/浅色主题"""
+        """Toggle between Light and Dark themes"""
         self.theme_mode = "dark" if self.theme_mode == "light" else "light"
         if hasattr(self, "btn_theme"):
-            self.btn_theme.config(text="🌙 深色" if self.theme_mode == "light" else "☀️ 浅色")
+            self.btn_theme.config(text=self.t("theme_dark" if self.theme_mode == "light" else "theme_light"))
         self.apply_theme(self.theme_mode)
 
     def apply_theme(self, mode):
-        """应用主题配置，彻底解决暗黑模式下输入框白底白字问题"""
+        """Apply theme styling with precise color bounds for entries and labels"""
         self.theme_mode = mode
         style = ttk.Style()
         style.theme_use("clam")
 
         if mode == "light":
-            # 浅色 / 白色主题 (Default White Theme)
+            # Clean Modern White Theme (Default)
             bg = "#F5F6F8"
             fg = "#1F2937"
             song_fg = "#15803D"
@@ -219,7 +356,7 @@ class SoulMusicApp:
             entry_border = "#D1D5DB"
             trough = "#E5E7EB"
         else:
-            # 深色 / 暗黑主题 (Dark Theme)
+            # Modern Dark Theme
             bg = "#181818"
             fg = "#FFFFFF"
             song_fg = "#1DB954"
@@ -230,7 +367,7 @@ class SoulMusicApp:
             btn_fg = "#FFFFFF"
             btn_hover = "#3E3E3E"
             entry_bg = "#282828"
-            entry_fg = "#FFFFFF"     # 彻底修复暗黑模式下输入框文字白底白字问题
+            entry_fg = "#FFFFFF"
             entry_border = "#3E3E3E"
             trough = "#2E2E2E"
 
@@ -268,33 +405,33 @@ class SoulMusicApp:
         main_frame = ttk.Frame(self.root, padding="12")
         main_frame.pack(fill=tk.BOTH, expand=True)
 
-        # 1. 歌曲标题显示
+        # 1. Track title display
         title_label = ttk.Label(
             main_frame,
             textvariable=self.current_song,
             style="Song.TLabel",
-            wraplength=490,
+            wraplength=510,
             justify=tk.CENTER,
             anchor="center",
         )
         title_label.pack(fill=tk.X, pady=(0, 2))
 
-        # 2. 状态标签
+        # 2. Status message label
         status_label = ttk.Label(
             main_frame,
             textvariable=self.status_text,
             style="Status.TLabel",
-            wraplength=490,
+            wraplength=510,
             justify=tk.CENTER,
             anchor="center",
         )
         status_label.pack(fill=tk.X, pady=(0, 8))
 
-        # 3. 搜索与手动播放栏
+        # 3. Search and top controls bar
         search_frame = ttk.Frame(main_frame)
         search_frame.pack(fill=tk.X, pady=(0, 8))
 
-        # 搜索输入框 (使用精准色彩控制的 Entry 控件，防止系统主题渲染冲突)
+        # Search entry box
         self.search_entry = tk.Entry(
             search_frame,
             font=("Segoe UI", 9),
@@ -304,19 +441,28 @@ class SoulMusicApp:
         self.search_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 6), ipady=3)
         self.search_entry.bind("<Return>", lambda e: self.on_manual_search())
 
-        self.search_btn = ttk.Button(search_frame, text="🔍 播放 / 搜索", command=self.on_manual_search)
+        self.search_btn = ttk.Button(search_frame, text=self.t("search_btn"), command=self.on_manual_search)
         self.search_btn.pack(side=tk.LEFT, padx=(0, 4))
 
-        # 主题切换按钮
+        # Theme toggle button
         self.btn_theme = ttk.Button(
             search_frame,
-            text="🌙 深色" if self.theme_mode == "light" else "☀️ 浅色",
+            text=self.t("theme_dark" if self.theme_mode == "light" else "theme_light"),
             width=7,
             command=self.toggle_theme,
         )
-        self.btn_theme.pack(side=tk.RIGHT)
+        self.btn_theme.pack(side=tk.LEFT, padx=(0, 4))
 
-        # 4. 进度条与播放时间
+        # Language toggle button
+        self.btn_lang = ttk.Button(
+            search_frame,
+            text=self.t("lang_toggle"),
+            width=6,
+            command=self.toggle_language,
+        )
+        self.btn_lang.pack(side=tk.RIGHT)
+
+        # 4. Progress bar and time labels
         progress_frame = ttk.Frame(main_frame)
         progress_frame.pack(fill=tk.X, pady=(2, 6))
 
@@ -325,7 +471,6 @@ class SoulMusicApp:
 
         self.progress_scale = ttk.Scale(progress_frame, from_=0, to=100, orient=tk.HORIZONTAL)
         self.progress_scale.pack(side=tk.LEFT, fill=tk.X, expand=True)
-        # 绑定进度条事件: 鼠标按下、拖拽、松开精准跳转
         self.progress_scale.bind("<ButtonPress-1>", self.on_seek_press)
         self.progress_scale.bind("<B1-Motion>", self.on_seek_motion)
         self.progress_scale.bind("<ButtonRelease-1>", self.on_seek_release)
@@ -333,28 +478,28 @@ class SoulMusicApp:
         self.time_total_label = ttk.Label(progress_frame, text="00:00", style="Time.TLabel", width=6, anchor="w")
         self.time_total_label.pack(side=tk.LEFT, padx=(6, 0))
 
-        # 5. 标准控制栏 (上一首 / 播放暂停 / 停止 / 下一首)
+        # 5. Playback control buttons
         controls_frame = ttk.Frame(main_frame)
         controls_frame.pack(fill=tk.X, pady=(4, 6))
 
-        self.btn_prev = ttk.Button(controls_frame, text="⏮ 上一首", width=9, command=self.play_prev)
+        self.btn_prev = ttk.Button(controls_frame, text=self.t("prev"), width=9, command=self.play_prev)
         self.btn_prev.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=3)
 
-        self.btn_play_pause = ttk.Button(controls_frame, text="⏯ 播放", width=9, command=self.toggle_play_pause)
+        self.btn_play_pause = ttk.Button(controls_frame, text=self.t("play"), width=9, command=self.toggle_play_pause)
         self.btn_play_pause.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=3)
 
-        self.btn_stop = ttk.Button(controls_frame, text="⏹ 停止", width=9, command=self.stop_music)
+        self.btn_stop = ttk.Button(controls_frame, text=self.t("stop"), width=9, command=self.stop_music)
         self.btn_stop.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=3)
 
-        self.btn_next = ttk.Button(controls_frame, text="⏭ 下一首", width=9, command=self.play_next)
+        self.btn_next = ttk.Button(controls_frame, text=self.t("next"), width=9, command=self.play_next)
         self.btn_next.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=3)
 
-        # 6. 音量调节栏 (实时毫秒级响应)
+        # 6. Volume bar
         vol_frame = ttk.Frame(main_frame)
         vol_frame.pack(fill=tk.X, pady=(4, 6))
 
-        vol_label = ttk.Label(vol_frame, text="🔊 音量:")
-        vol_label.pack(side=tk.LEFT, padx=(0, 6))
+        self.vol_label = ttk.Label(vol_frame, text=self.t("volume"))
+        self.vol_label.pack(side=tk.LEFT, padx=(0, 6))
 
         self.vol_scale = ttk.Scale(vol_frame, from_=0, to=100, orient=tk.HORIZONTAL, command=self.set_volume)
         self.vol_scale.set(self.volume)
@@ -363,16 +508,16 @@ class SoulMusicApp:
         self.vol_val_label = ttk.Label(vol_frame, text=f"{self.volume}%", width=5, anchor="e")
         self.vol_val_label.pack(side=tk.LEFT, padx=(6, 0))
 
-        # 7. 快捷键与使用提示
-        hint_label = ttk.Label(
+        # 7. Hotkey instructions
+        self.hint_label = ttk.Label(
             main_frame,
-            text="💡 快捷键: 空格键暂停/继续 | 支持拖拽进度条跳转与实时音量调节",
+            text=self.t("hint"),
             style="Hint.TLabel",
             anchor="center",
         )
-        hint_label.pack(side=tk.BOTTOM, fill=tk.X)
+        self.hint_label.pack(side=tk.BOTTOM, fill=tk.X)
 
-    # ----------------- 音量与 Seek 控制 -----------------
+    # ----------------- Volume and Seek Controls -----------------
     def set_volume(self, val):
         self.volume = int(float(val))
         if hasattr(self, "vol_val_label"):
@@ -431,7 +576,7 @@ class SoulMusicApp:
             else:
                 self.start_playback(self.current_file, start_sec=target)
         except Exception as e:
-            self.status_text.set(f"跳转进度失败: {e}")
+            self.status_text.set(self.t("err_seek", err=e))
 
     def get_current_seconds(self):
         if not self.is_playing:
@@ -441,9 +586,8 @@ class SoulMusicApp:
             return self.seek_offset_seconds
         return self.seek_offset_seconds + (pos_ms / 1000.0)
 
-    # ----------------- 基础播放控制 -----------------
+    # ----------------- Playback Control -----------------
     def on_spacebar(self, event=None):
-        # 如果当前焦点在输入框中，正常输入空格，不拦截
         widget = getattr(event, "widget", None) if event else None
         focused = self.root.focus_get()
         if (
@@ -468,13 +612,13 @@ class SoulMusicApp:
             if self.is_paused:
                 pygame.mixer.music.unpause()
                 self.is_paused = False
-                self.btn_play_pause.config(text="⏸ 暂停")
-                self.status_text.set(f"状态: 正在播放中 🎵 ({self.current_song.get()})")
+                self.btn_play_pause.config(text=self.t("pause"))
+                self.status_text.set(self.t("status_playing", title=self.current_song.get()))
             else:
                 pygame.mixer.music.pause()
                 self.is_paused = True
-                self.btn_play_pause.config(text="▶ 继续")
-                self.status_text.set("状态: 已暂停 ⏸")
+                self.btn_play_pause.config(text=self.t("resume"))
+                self.status_text.set(self.t("status_paused"))
         else:
             current_sec = self.progress_scale.get()
             self.start_playback(self.current_file, start_sec=current_sec)
@@ -493,8 +637,8 @@ class SoulMusicApp:
         self.seek_offset_seconds = 0.0
         self.progress_scale.set(0)
         self.time_curr_label.config(text="00:00")
-        self.btn_play_pause.config(text="▶ 播放")
-        self.status_text.set("状态: 已停止 ⏹")
+        self.btn_play_pause.config(text=self.t("play"))
+        self.status_text.set(self.t("status_stopped"))
 
     def play_prev(self):
         with self.lock:
@@ -504,7 +648,6 @@ class SoulMusicApp:
                 return
 
             curr_sec = self.get_current_seconds()
-            # 若当前曲目已播放超过 3 秒，按上一首习惯回到开头
             if curr_sec > 3.0 or self.current_index <= 0:
                 self.seek_to(0.0)
             else:
@@ -527,8 +670,7 @@ class SoulMusicApp:
             self.play_request_id += 1
             req_id = self.play_request_id
 
-        # 重置视觉状态并异步载入音源
-        self.btn_play_pause.config(text="⏳ 载入中")
+        self.btn_play_pause.config(text=self.t("loading_btn"))
         self.progress_scale.set(0)
         self.time_curr_label.config(text="00:00")
         threading.Thread(target=self._resolve_and_play_track, args=(track, req_id), daemon=True).start()
@@ -540,22 +682,22 @@ class SoulMusicApp:
             self.play_next()
         else:
             self.stop_music()
-            self.status_text.set("状态: 播放完毕 🏁")
+            self.status_text.set(self.t("status_finished"))
 
     def safe_ui_call(self, fn, *args, **kwargs):
-        """线程安全地向 UI 主线程队列投递任务"""
+        """Dispatch task to UI main thread queue"""
         self.ui_queue.put(lambda: fn(*args, **kwargs))
 
     def update_playback_loop(self):
-        # 1. 优先处理来自后台线程的 UI 刷新任务
+        # 1. Process tasks from background threads
         while not self.ui_queue.empty():
             try:
                 task = self.ui_queue.get_nowait()
                 task()
             except Exception as e:
-                print(f"UI 任务执行异常: {e}")
+                print(f"UI task error: {e}")
 
-        # 2. 轮询音频播放进度
+        # 2. Poll playback progress
         try:
             if self.is_playing and not self.is_paused:
                 busy = pygame.mixer.music.get_busy()
@@ -573,7 +715,7 @@ class SoulMusicApp:
         finally:
             self.root.after(200, self.update_playback_loop)
 
-    # ----------------- 窗口析构与清理 -----------------
+    # ----------------- Window Exit Cleanup -----------------
     def on_window_close(self):
         self.force_cleanup()
         try:
@@ -598,13 +740,13 @@ class SoulMusicApp:
             except Exception:
                 pass
 
-    # ----------------- 搜索与音源下载/播放 -----------------
+    # ----------------- Search and Stream Download -----------------
     def on_manual_search(self):
         query = self.search_entry.get().strip()
         if not query:
             return
         if SPOTIFY_TRACK_REGEX.search(query):
-            self.safe_ui_call(self.status_text.set, "侦测到 Spotify 链接，正在解析...")
+            self.safe_ui_call(self.status_text.set, self.t("detected_spotify"))
             threading.Thread(target=self.resolve_spotify_url, args=(query,), daemon=True).start()
         else:
             threading.Thread(target=self.resolve_and_play, args=(query,), daemon=True).start()
@@ -617,7 +759,7 @@ class SoulMusicApp:
                 if clip and clip != self.last_clipboard:
                     self.last_clipboard = clip
                     if SPOTIFY_TRACK_REGEX.search(clip):
-                        self.safe_ui_call(self.status_text.set, "侦测到 Spotify 链接，正在解析...")
+                        self.safe_ui_call(self.status_text.set, self.t("detected_spotify"))
                         threading.Thread(target=self.resolve_spotify_url, args=(clip,), daemon=True).start()
             except Exception:
                 pass
@@ -629,11 +771,11 @@ class SoulMusicApp:
             duration = info.get("duration", 0.0)
             self.resolve_and_play(search_query, hint_duration=duration)
         else:
-            self.safe_ui_call(self.status_text.set, "未能解析 Spotify 链接或歌曲不存在")
+            self.safe_ui_call(self.status_text.set, self.t("err_resolve_spotify"))
 
     def resolve_and_play(self, query, hint_duration=0.0):
-        self.safe_ui_call(self.status_text.set, f"正在匹配最佳音源: {query}...")
-        self.safe_ui_call(self.current_song.set, f"正在载入: {query}")
+        self.safe_ui_call(self.status_text.set, self.t("matching", query=query))
+        self.safe_ui_call(self.current_song.set, self.t("loading", query=query))
 
         with self.lock:
             self.play_request_id += 1
@@ -645,8 +787,8 @@ class SoulMusicApp:
                 results = ytmusic.search(query)
 
             if not results:
-                self.safe_ui_call(self.status_text.set, f"未找到可播放的音源: {query}")
-                self.safe_ui_call(self.btn_play_pause.config, text="▶ 播放")
+                self.safe_ui_call(self.status_text.set, self.t("err_no_audio", query=query))
+                self.safe_ui_call(self.btn_play_pause.config, text=self.t("play"))
                 return
 
             best_song = results[0]
@@ -684,8 +826,8 @@ class SoulMusicApp:
 
             self._resolve_and_play_track(track, req_id)
         except Exception as e:
-            self.safe_ui_call(self.status_text.set, f"匹配失败: {e}")
-            self.safe_ui_call(self.btn_play_pause.config, text="▶ 播放")
+            self.safe_ui_call(self.status_text.set, self.t("err_match", err=e))
+            self.safe_ui_call(self.btn_play_pause.config, text=self.t("play"))
             print(f"Error: {e}")
 
     def _resolve_and_play_track(self, track, req_id=None):
@@ -696,7 +838,7 @@ class SoulMusicApp:
             if req_id is not None and req_id != self.play_request_id:
                 return
 
-        self.safe_ui_call(self.status_text.set, f"已找到: {display_title}，正在准备高音质音频...")
+        self.safe_ui_call(self.status_text.set, self.t("found_audio", title=display_title))
         self.safe_ui_call(self.current_song.set, display_title)
 
         target_file = self.get_or_download_audio(video_id)
@@ -706,8 +848,8 @@ class SoulMusicApp:
                 return
 
         if not target_file:
-            self.safe_ui_call(self.status_text.set, f"获取音频失败: {display_title}")
-            self.safe_ui_call(self.btn_play_pause.config, text="▶ 播放")
+            self.safe_ui_call(self.status_text.set, self.t("err_fetch_audio", title=display_title))
+            self.safe_ui_call(self.btn_play_pause.config, text=self.t("play"))
             return
 
         hint_duration = track.get("duration", 0.0)
@@ -724,7 +866,7 @@ class SoulMusicApp:
         if os.path.exists(mp3_file) and os.path.getsize(mp3_file) > 10000:
             return mp3_file
 
-        # 如果存在非 mp3 格式的缓存，使用 ffmpeg 极速转码为标准 mp3
+        # If cache exists in non-mp3 format, transcode to 192k mp3
         for ext in ["webm", "m4a", "opus", "wav"]:
             cand = os.path.join(AUDIO_CACHE_DIR, f"{video_id}.{ext}")
             if os.path.exists(cand) and os.path.getsize(cand) > 10000:
@@ -751,12 +893,12 @@ class SoulMusicApp:
                 if os.path.exists(mp3_file) and os.path.getsize(mp3_file) > 10000:
                     return mp3_file
 
-        # 否则通过 yt-dlp 下载并自动提取为 192k mp3
+        # Otherwise download with yt-dlp and extract 192k mp3
         try:
             ydl_opts = {
                 "format": "bestaudio/best",
                 "outtmpl": os.path.join(AUDIO_CACHE_DIR, f"{video_id}.%(ext)s"),
-                "ffmpeg_location": APP_DIR if os.path.exists(os.path.join(APP_DIR, "ffmpeg.exe")) else None,
+                "ffmpeg_location": os.path.dirname(FFMPEG_BIN) if os.path.exists(FFMPEG_BIN) else (APP_DIR if os.path.exists(os.path.join(APP_DIR, "ffmpeg.exe")) else None),
                 "quiet": True,
                 "no_warnings": True,
                 "postprocessors": [
@@ -787,7 +929,7 @@ class SoulMusicApp:
             pygame.mixer.music.load(filepath)
             pygame.mixer.music.set_volume(self.volume / 100.0)
 
-            # 获取精准音频总时长 (优先使用元数据，其次使用 pygame Sound 解码)
+            # Get duration
             if hint_duration and hint_duration > 0:
                 self.total_duration = float(hint_duration)
             else:
@@ -809,17 +951,17 @@ class SoulMusicApp:
             self.is_paused = False
             self.current_file = filepath
 
-            self.btn_play_pause.config(text="⏸ 暂停")
+            self.btn_play_pause.config(text=self.t("pause"))
             display_title = self.current_song.get()
-            self.status_text.set(f"状态: 正在播放中 🎵 ({display_title})")
+            self.status_text.set(self.t("status_playing", title=display_title))
         except Exception as e:
-            self.status_text.set(f"播放失败: {e}")
+            self.status_text.set(self.t("err_playback", err=e))
             self.is_playing = False
             self.is_paused = False
-            self.btn_play_pause.config(text="▶ 播放")
+            self.btn_play_pause.config(text=self.t("play"))
 
 
-# 向后兼容别名
+# Backward compatibility alias
 SpotifastCompanionApp = SoulMusicApp
 
 

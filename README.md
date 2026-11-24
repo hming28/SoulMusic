@@ -2,7 +2,7 @@
 
 # 🎵 SoulMusic
 
-**轻量桌面音乐伴侣播放器 (Spotify Companion Player)**
+**Lightweight Desktop Music Companion Player**
 
 [![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-blue?style=flat)]()
@@ -10,69 +10,72 @@
 [![Release](https://img.shields.io/badge/Release-v1.1.0-orange?style=flat)]()
 [![GUI](https://img.shields.io/badge/GUI-Tkinter%20%2F%20TTK-teal?style=flat)]()
 
-*极简美观 · 极速匹配 · 智能剪贴板识别 · 双主题自适应*
+*Minimalist · Fast Matching · Clipboard Auto-Detection · Dual Themes · Multilingual*
 
-[功能特性](#-功能特性) • [3分钟快速上手](#-3分钟快速上手) • [核心玩法场景](#-核心玩法场景) • [快捷键](#-快捷键指南) • [目录结构](#-项目目录结构) • [常见问题](#-常见问题-faq)
+[English](#-english) • [中文说明](#-中文说明)
 
 </div>
 
 ---
 
-## 📖 项目简介
+# 🌐 English
 
-**SoulMusic** 是一款轻量桌面音乐伴侣播放器。
+## 📖 Introduction
 
-应用能够作为后台伴侣，**自动侦测并捕获在音频平台中复制的歌曲分享链接**，在本地免登录解析元数据，并秒级匹配音源进行流媒体播放与本地缓存。
+**SoulMusic** is a lightweight, zero-login desktop companion music player.
 
-同时也是一款独立的迷你音乐播放器，支持直接通过歌曲名称或歌手搜索并点播。
+It acts as a background companion that **automatically detects and captures music share links copied to your clipboard**, resolves track metadata locally without any login, and matches the audio source for high-quality streaming and local caching.
+
+It also functions as an independent mini player, allowing you to directly search and play any song by track title or artist.
 
 ---
 
-## ✨ 功能特性
+## ✨ Features
 
-| 功能模块 | 说明 |
+| Feature | Description |
 | :--- | :--- |
-| 🎨 **优雅双主题** | **默认现代白色浅色主题**，清爽通透；支持一键切换至**暗黑夜间主题**。输入框色彩经过精心适配，彻底杜绝白底白字或对比度差的问题。 |
-| 📋 **剪贴板自动识别** | 在客户端或网页版右键“复制歌曲链接”，SoulMusic 瞬间捕捉并开始播放，全程无需手动粘贴。 |
-| ⚡ **免登录零配置** | 采用公开结构化接口解析机制，无需账号登录，无需配置 API Key。 |
-| 🎧 **高保真流式引擎** | 智能检索最优音轨，自动提取 192kbps MP3，支持边播边存，二次播放零缓冲秒开。 |
-| 🎛️ **完整现代控制** | 精确进度轴毫秒级拖拽、上一首/下一首队列循环、0~100% 实时平滑音量线性调节、播放状态实时反馈。 |
-| ⌨️ **防误触快捷键** | 全局空格键（Space）一键播放/暂停；在搜索框打字输入空格时智能识别焦点，绝不发生误触。 |
+| 🎨 **Dual Themes** | **Clean White Theme by default**; seamlessly switch to **Dark Theme** with one click. Entry colors are fine-tuned to avoid any contrast issues. |
+| 🌐 **Multilingual Support** | **English by default**; toggle between English and Chinese (`🌐 中文` / `🌐 EN`) at any time. |
+| 📋 **Smart Clipboard Listener** | Copy a song link in any music client or web player; SoulMusic captures and starts playing automatically. |
+| ⚡ **Zero-Login & Zero-Config** | Resolves metadata through public structured endpoints without requiring an account or API key. |
+| 🎧 **High-Fidelity Audio** | Automatically matches audio tracks, extracts 192kbps MP3s, and caches locally for instant playback. |
+| 🎛️ **Full Playback Controls** | Smooth seekbar with millisecond jumping, track queue, 0-100% linear volume slider, and live status. |
+| ⌨️ **Safe Hotkeys** | Global Spacebar for Play/Pause (smartly detects focus when typing to prevent interference). |
 
 ---
 
-## 🖥️ 播放器界面一览
+## 🖥️ UI Overview
 
 ```text
-+--------------------------------------------------------------+
-|  SoulMusic - 音乐伴侣播放器                           - [x]  |
-+--------------------------------------------------------------+
-|                     歌手名 - 示例曲目                         |
-|              状态: 正在播放中 🎵 (歌手名 - 示例曲目)          |
-|                                                              |
-|  [ 搜索歌曲名或粘贴链接...           ] [🔍 播放/搜索] [🌙 深色]|
-|                                                              |
-|  01:23  ===================O---------------------  04:29     |
-|                                                              |
-|  [⏮ 上一首]      [⏸ 暂停]      [⏹ 停止]      [⏭ 下一首]  |
-|                                                              |
-|  🔊 音量: -------------------O---  80%                       |
-|                                                              |
-|  💡 快捷键: 空格键暂停/继续 | 支持拖拽进度条跳转与实时音量调节 |
-+--------------------------------------------------------------+
++--------------------------------------------------------------------+
+|  SoulMusic - Music Companion Player                         - [x]  |
++--------------------------------------------------------------------+
+|                       Artist - Track Title                         |
+|            Status: Playing 🎵 (Artist - Track Title)               |
+|                                                                    |
+|  [ Search song or paste link...    ] [🔍 Play/Search] [🌙 Dark] [🌐]|
+|                                                                    |
+|  01:23  ===================O---------------------  04:29           |
+|                                                                    |
+|  [⏮ Prev]         [⏸ Pause]         [⏹ Stop]         [⏭ Next]    |
+|                                                                    |
+|  🔊 Volume: -------------------O---  80%                           |
+|                                                                    |
+|  💡 Shortcuts: Space = Play/Pause | Drag slider to seek & volume   |
++--------------------------------------------------------------------+
 ```
 
 ---
 
-## 🚀 3分钟快速上手
+## 🚀 Quick Start (3 Minutes)
 
-### 步骤 1：安装 Python 环境
+### Step 1: Install Python
 
-确保电脑已安装 Python 3.9 或更高版本（安装时请勾选 **Add Python to PATH**）。
+Ensure Python 3.9 or higher is installed on your computer (make sure **Add Python to PATH** is checked during installation).
 
-### 步骤 2：下载本项目并安装依赖
+### Step 2: Clone and Install Dependencies
 
-在项目根目录下打开终端，运行以下命令：
+Open a terminal (PowerShell, Command Prompt, or Bash) in your desired folder:
 
 ```bash
 git clone https://github.com/hming28/SoulMusic.git
@@ -80,93 +83,124 @@ cd SoulMusic
 pip install -r requirements.txt
 ```
 
-### 步骤 3：获取 FFmpeg 音频组件（推荐）
+### Step 3: Get FFmpeg (Recommended)
 
-FFmpeg 用于高音质音频提取与转码。Windows 用户可直接运行项目内置的自动下载脚本：
+FFmpeg handles fast audio extraction and transcoding. Windows users can run the built-in downloader:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\get_ffmpeg.ps1
 ```
-*注：如果系统中已经配置了全局环境变量 `ffmpeg`，此步骤可跳过，SoulMusic 会自动检测系统路径。*
+*(If FFmpeg is already installed and in your system PATH, you can skip this step.)*
 
-### 步骤 4：一键启动
+### Step 4: Run the Player
 
-- **Windows 用户**：直接双击运行项目目录下的 **`启动SoulMusic.bat`**。
-- **命令行启动**：
+- **Windows Users**: Double-click **`run.bat`**.
+- **Command Line**:
   ```bash
   python soulmusic.py
   ```
 
 ---
 
-## 💡 核心玩法场景
+## 💡 Usage Scenarios
 
-### 场景 1：链接联动播放（推荐）
-1. 在音乐平台任意单曲上点击 **分享 ➔ 复制歌曲链接**。
-2. 切回 SoulMusic，播放器已自动完成解析并开始播放。
+### Scenario 1: Clipboard Companion
+1. Click **Share ➔ Copy Song Link** in your music app or web browser.
+2. Switch to SoulMusic; it automatically parses the track and starts playing!
 
-### 场景 2：独立点播与歌名搜索
-1. 在顶部搜索框中直接输入任意歌曲名或歌手名。
-2. 按键盘 **回车键（Enter）** 或点击 **`🔍 播放 / 搜索`**，系统将自动检索最佳音轨并播放。
+### Scenario 2: Direct Search
+1. Type any song title or artist in the search box.
+2. Press **Enter** or click **`🔍 Play / Search`**.
 
-### 场景 3：随心切换日间/夜间模式
-1. 默认启动为**浅色白调主题**，白天使用明亮舒适。
-2. 点击右上角 **`🌙 深色`** 按钮，界面立即无缝转换为夜间暗黑风格；输入框字体自动切换为纯白高亮，保证文字清晰可见。
+### Scenario 3: Theme and Language Switching
+- Click **`🌙 Dark` / `☀️ Light`** to switch between light and dark modes.
+- Click **`🌐 中文` / `🌐 EN`** to toggle between English and Chinese interface languages.
 
 ---
 
-## ⌨️ 快捷键指南
+## ⌨️ Shortcuts Guide
 
-| 按键 | 功能 | 说明 |
+| Key | Action | Description |
 | :---: | :---: | :--- |
-| **Space（空格键）** | 播放 / 暂停 | 全局支持。若焦点在搜索框内输入文字，正常输入空格，不触发拦截。 |
-| **Enter（回车键）** | 触发搜索并播放 | 在搜索输入框键入歌曲名或链接后直接回车。 |
-| **鼠标左键拖拽** | 调整进度条 / 音量 | 进度条松开鼠标瞬间平滑定位跳转；音量调节毫秒级响应。 |
+| **Space** | Play / Pause | Global shortcut; types normal spaces when the search box is focused. |
+| **Enter** | Search & Play | Triggers search when typing in the search box. |
+| **Left Click Drag** | Seek / Volume | Click or drag on the progress bar or volume slider for real-time control. |
 
 ---
 
-## 📁 项目目录结构
+## 📁 Project Structure
 
 ```text
 SoulMusic/
-├── soulmusic.py             # 播放器核心主程序 (支持双主题与音频引擎)
-├── requirements.txt         # 核心 Python 依赖包清单
-├── get_ffmpeg.ps1           # FFmpeg 组件自动下载脚本 (Windows)
-├── 启动SoulMusic.bat        # Windows 便携双击启动脚本
-├── run.bat                  # 英文命名启动脚本
-├── test_phase1.py           # 核心控制器与 UI 单元测试套件
-├── test_integration.py      # 端到端集成测试脚本
-├── .gitignore               # Git 忽略配置
-├── LICENSE                  # MIT 开源许可证
-└── README.md                # 项目详细说明文档
+├── soulmusic.py             # Main player core application
+├── requirements.txt         # Core Python dependencies
+├── get_ffmpeg.ps1           # Automated FFmpeg build downloader
+├── run.bat                  # One-click Windows launcher
+├── test_phase1.py           # Unit test suite (20/20 tests passing)
+├── test_integration.py      # End-to-end integration test
+├── .gitignore               # Git ignore rules
+├── LICENSE                  # MIT License
+└── README.md                # Bilingual documentation
 ```
 
 ---
 
-## ❓ 常见问题 (FAQ)
+## ❓ FAQ
 
 <details>
-<summary><b>Q1: 需要注册账号或购买会员吗？</b></summary>
-不需要。SoulMusic 通过公开接口提取基本信息，并提供音频流播放，无需登录任何账号。
+<summary><b>Q1: Do I need to create an account or log in?</b></summary>
+No. SoulMusic resolves public track data and streams audio without requiring any account login.
 </details>
 
 <details>
-<summary><b>Q2: 听过的歌曲会重复下载消耗流量吗？</b></summary>
-不会。播放过的歌曲会自动保存在本地 <code>cache/</code> 目录下。再次播放相同曲目时，系统会直接读取本地缓存秒开。
+<summary><b>Q2: Does it download the same song repeatedly?</b></summary>
+No. Played songs are cached in the local <code>cache/</code> directory. Subsequent plays load directly from the local cache with zero latency.
 </details>
 
 <details>
-<summary><b>Q3: 深色模式下输入框打字是否清晰？</b></summary>
-在当前 v1.1.0 版本中已专门优化。深色模式下输入框采用 <code>#282828</code> 深黑底色，字体与光标均锁定为 <code>#FFFFFF</code> 纯白高亮。
-</details>
-
-<details>
-<summary><b>Q4: 是否支持上一首 / 下一首连播？</b></summary>
-支持。所点播或解析的歌曲均会自动加入当前播放列表队列，歌曲播放结束时会自动播放下一首。
+<summary><b>Q3: Is the text clear in dark mode?</b></summary>
+Yes. In dark mode, the input box uses a <code>#282828</code> background with crisp <code>#FFFFFF</code> white font and cursor.
 </details>
 
 ---
+---
 
-## 📜 开源协议
+# 🇨🇳 中文说明
 
-本项目采用 [MIT 许可证](LICENSE)。
+## 📖 项目简介
+
+**SoulMusic** 是一款轻量、免登录的桌面音乐伴侣播放器。
+
+应用能够作为后台伴侣，**自动侦测并捕获在音频平台中复制的歌曲分享链接**，在本地免登录解析元数据，并秒级匹配音源进行流媒体播放与本地缓存。同时支持直接通过歌曲名称或歌手搜索并点播。
+
+---
+
+## ✨ 核心特性
+
+- 🎨 **默认白色现代主题**：清爽通透，支持一键切换至夜间暗黑主题，输入框字体对比度清晰。
+- 🌐 **默认英文界面与双语切换**：启动默认英文，支持点击 `🌐 中文` 实时无缝切换至中文。
+- 📋 **剪贴板自动识别**：复制歌曲链接即可自动播放，无需手动粘贴。
+- ⚡ **免登录零配置**：采用公开结构化接口解析机制，无需账号或 API Key。
+- 🎧 **高保真流式引擎**：自动提取 192kbps MP3 本地缓存，二次播放秒开。
+- 🎛️ **现代播放控制**：精准进度轴拖拽、队列管理、0-100% 实时音量调节与防误触快捷键。
+
+---
+
+## 🚀 3分钟快速上手
+
+1. **安装依赖**：
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. **下载 FFmpeg（Windows 用户可选）**：
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File .\get_ffmpeg.ps1
+   ```
+3. **启动运行**：
+   - 双击运行 **`run.bat`** 或在终端执行 `python soulmusic.py`。
+
+---
+
+## 📜 License
+
+This project is licensed under the [MIT License](LICENSE).
