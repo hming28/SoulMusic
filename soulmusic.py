@@ -136,10 +136,12 @@ class SoulMusicApp:
     def __init__(self, root):
         self.root = root
         self.root.title("SoulMusic - 音乐伴侣播放器")
-        self.root.geometry("520x290")
+        self.root.geometry("520x295")
         self.root.resizable(False, False)
         self.root.attributes("-topmost", True)
-        self.root.configure(bg="#181818")
+
+        # 默认主题模式: light (白色/浅色主题)
+        self.theme_mode = "light"
 
         # 线程锁与请求序列号 (彻底解决多线程与快速切歌时音频覆盖的竞争条件)
         self.lock = threading.RLock()
@@ -168,8 +170,9 @@ class SoulMusicApp:
         self.last_clipboard = ""
         self.ffplay_proc = None
 
-        # 构建界面
+        # 构建界面并应用默认白色主题
         self.setup_ui()
+        self.apply_theme(self.theme_mode)
 
         # 退出安全防护 (彻底解决后台残留发声与文件句柄锁定)
         self.root.protocol("WM_DELETE_WINDOW", self.on_window_close)
@@ -187,29 +190,81 @@ class SoulMusicApp:
         self.clipboard_thread = threading.Thread(target=self.monitor_clipboard, daemon=True)
         self.clipboard_thread.start()
 
-    def setup_ui(self):
+    def toggle_theme(self):
+        """切换深色/浅色主题"""
+        self.theme_mode = "dark" if self.theme_mode == "light" else "light"
+        if hasattr(self, "btn_theme"):
+            self.btn_theme.config(text="🌙 深色" if self.theme_mode == "light" else "☀️ 浅色")
+        self.apply_theme(self.theme_mode)
+
+    def apply_theme(self, mode):
+        """应用主题配置，彻底解决暗黑模式下输入框白底白字问题"""
+        self.theme_mode = mode
         style = ttk.Style()
         style.theme_use("clam")
 
-        # 暗黑风格配色
-        style.configure(".", background="#181818", foreground="#FFFFFF")
-        style.configure("TFrame", background="#181818")
-        style.configure("TLabel", background="#181818", foreground="#FFFFFF")
-        style.configure("Song.TLabel", background="#181818", foreground="#1DB954", font=("Segoe UI", 11, "bold"))
-        style.configure("Status.TLabel", background="#181818", foreground="#B3B3B3", font=("Segoe UI", 9))
-        style.configure("Time.TLabel", background="#181818", foreground="#B3B3B3", font=("Consolas", 9))
-        style.configure("Hint.TLabel", background="#181818", foreground="#777777", font=("Segoe UI", 8))
+        if mode == "light":
+            # 浅色 / 白色主题 (Default White Theme)
+            bg = "#F5F6F8"
+            fg = "#1F2937"
+            song_fg = "#15803D"
+            status_fg = "#4B5563"
+            time_fg = "#4B5563"
+            hint_fg = "#6B7280"
+            btn_bg = "#E5E7EB"
+            btn_fg = "#111827"
+            btn_hover = "#D1D5DB"
+            entry_bg = "#FFFFFF"
+            entry_fg = "#111827"
+            entry_border = "#D1D5DB"
+            trough = "#E5E7EB"
+        else:
+            # 深色 / 暗黑主题 (Dark Theme)
+            bg = "#181818"
+            fg = "#FFFFFF"
+            song_fg = "#1DB954"
+            status_fg = "#B3B3B3"
+            time_fg = "#B3B3B3"
+            hint_fg = "#777777"
+            btn_bg = "#282828"
+            btn_fg = "#FFFFFF"
+            btn_hover = "#3E3E3E"
+            entry_bg = "#282828"
+            entry_fg = "#FFFFFF"     # 彻底修复暗黑模式下输入框文字白底白字问题
+            entry_border = "#3E3E3E"
+            trough = "#2E2E2E"
+
+        self.root.configure(bg=bg)
+        style.configure(".", background=bg, foreground=fg)
+        style.configure("TFrame", background=bg)
+        style.configure("TLabel", background=bg, foreground=fg)
+        style.configure("Song.TLabel", background=bg, foreground=song_fg, font=("Segoe UI", 11, "bold"))
+        style.configure("Status.TLabel", background=bg, foreground=status_fg, font=("Segoe UI", 9))
+        style.configure("Time.TLabel", background=bg, foreground=time_fg, font=("Consolas", 9))
+        style.configure("Hint.TLabel", background=bg, foreground=hint_fg, font=("Segoe UI", 8))
         style.configure(
             "TButton",
-            background="#282828",
-            foreground="#FFFFFF",
+            background=btn_bg,
+            foreground=btn_fg,
             borderwidth=1,
             focusthickness=2,
             font=("Segoe UI", 9),
         )
-        style.map("TButton", background=[("active", "#3E3E3E"), ("pressed", "#1DB954")])
-        style.configure("Horizontal.TScale", background="#181818", troughcolor="#2E2E2E")
+        style.map("TButton", background=[("active", btn_hover), ("pressed", "#1DB954")])
+        style.configure("Horizontal.TScale", background=bg, troughcolor=trough)
 
+        if hasattr(self, "search_entry"):
+            self.search_entry.configure(
+                bg=entry_bg,
+                fg=entry_fg,
+                insertbackground=entry_fg,
+                selectbackground="#1DB954",
+                selectforeground="#FFFFFF",
+                highlightbackground=entry_border,
+                highlightcolor="#1DB954",
+            )
+
+    def setup_ui(self):
         main_frame = ttk.Frame(self.root, padding="12")
         main_frame.pack(fill=tk.BOTH, expand=True)
 
@@ -239,12 +294,27 @@ class SoulMusicApp:
         search_frame = ttk.Frame(main_frame)
         search_frame.pack(fill=tk.X, pady=(0, 8))
 
-        self.search_entry = ttk.Entry(search_frame, font=("Segoe UI", 9))
-        self.search_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 6))
+        # 搜索输入框 (使用精准色彩控制的 Entry 控件，防止系统主题渲染冲突)
+        self.search_entry = tk.Entry(
+            search_frame,
+            font=("Segoe UI", 9),
+            relief="flat",
+            highlightthickness=1,
+        )
+        self.search_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 6), ipady=3)
         self.search_entry.bind("<Return>", lambda e: self.on_manual_search())
 
         self.search_btn = ttk.Button(search_frame, text="🔍 播放 / 搜索", command=self.on_manual_search)
-        self.search_btn.pack(side=tk.RIGHT)
+        self.search_btn.pack(side=tk.LEFT, padx=(0, 4))
+
+        # 主题切换按钮
+        self.btn_theme = ttk.Button(
+            search_frame,
+            text="🌙 深色" if self.theme_mode == "light" else "☀️ 浅色",
+            width=7,
+            command=self.toggle_theme,
+        )
+        self.btn_theme.pack(side=tk.RIGHT)
 
         # 4. 进度条与播放时间
         progress_frame = ttk.Frame(main_frame)

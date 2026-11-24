@@ -26,14 +26,29 @@ class TestPhase1AudioCoreAndControls(unittest.TestCase):
         cls.root.withdraw()  # Hide GUI window during tests
         cls.app = SpotifastCompanionApp(cls.root)
 
-        # Find an existing test MP3 in cache
+        # Find an existing test MP3 in cache or fallback to sibling cache
         cls.test_mp3 = None
+        os.makedirs(AUDIO_CACHE_DIR, exist_ok=True)
         for f in os.listdir(AUDIO_CACHE_DIR):
             if f.endswith(".mp3"):
                 p = os.path.join(AUDIO_CACHE_DIR, f)
                 if os.path.getsize(p) > 10000:
                     cls.test_mp3 = p
                     break
+        if not cls.test_mp3:
+            for fallback_dir in [r"D:\Spotifast\cache", os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "Spotifast", "cache")]:
+                if os.path.exists(fallback_dir):
+                    for f in os.listdir(fallback_dir):
+                        if f.endswith(".mp3"):
+                            src = os.path.join(fallback_dir, f)
+                            if os.path.getsize(src) > 10000:
+                                dst = os.path.join(AUDIO_CACHE_DIR, f)
+                                shutil.copy2(src, dst)
+                                cls.test_mp3 = dst
+                                break
+                    if cls.test_mp3:
+                        break
+
         if not cls.test_mp3:
             raise RuntimeError("No cached mp3 found for testing in " + AUDIO_CACHE_DIR)
         print(f"Using test MP3: {cls.test_mp3}")
@@ -367,6 +382,27 @@ class TestPhase1AudioCoreAndControls(unittest.TestCase):
         self.assertIsNone(self.app.get_or_download_audio(""))
         self.assertIsNone(self.app.get_or_download_audio("   "))
         self.assertIsNone(self.app.get_or_download_audio(12345))
+
+    def test_19_theme_toggle_and_entry_colors(self):
+        """Verify white theme default and dark theme font/background color fix"""
+        # 1. 默认浅色/白色主题验证
+        self.assertEqual(self.app.theme_mode, "light")
+        self.assertEqual(self.app.search_entry.cget("bg"), "#FFFFFF")
+        self.assertEqual(self.app.search_entry.cget("fg"), "#111827")
+        self.assertEqual(self.app.search_entry.cget("insertbackground"), "#111827")
+
+        # 2. 切换至暗黑主题：输入框背景深色(#282828)，字体纯白(#FFFFFF)，光标白色(#FFFFFF)
+        self.app.toggle_theme()
+        self.assertEqual(self.app.theme_mode, "dark")
+        self.assertEqual(self.app.search_entry.cget("bg"), "#282828")
+        self.assertEqual(self.app.search_entry.cget("fg"), "#FFFFFF")
+        self.assertEqual(self.app.search_entry.cget("insertbackground"), "#FFFFFF")
+
+        # 3. 再次切换回浅色/白色主题
+        self.app.toggle_theme()
+        self.assertEqual(self.app.theme_mode, "light")
+        self.assertEqual(self.app.search_entry.cget("bg"), "#FFFFFF")
+        self.assertEqual(self.app.search_entry.cget("fg"), "#111827")
 
 
 if __name__ == "__main__":
