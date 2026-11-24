@@ -124,12 +124,12 @@ PENALTY_KEYWORDS = ("karaoke", "instrumental", "slowed", "sped up", "8d audio", 
 I18N = {
     "en": {
         "title": "SoulMusic",
-        "pin_on": "📌 Pin: ON",
-        "pin_off": "📌 Pin: OFF",
-        "clip_on": "📋 Clip: ON",
-        "clip_off": "📋 Clip: OFF",
-        "clip_mode_play": "Auto: Play",
-        "clip_mode_queue": "Auto: Queue",
+        "pin_on": "📌 Pin",
+        "pin_off": "📌 Pin",
+        "clip_on": "📋 Clip",
+        "clip_off": "📋 Clip",
+        "clip_mode_play": "▶ Auto",
+        "clip_mode_queue": "+ Queue",
         "lang_toggle": "🌐 中文",
         "cache_prefix": "Cache",
         "queue_btn": "Queue ({count})",
@@ -174,12 +174,12 @@ I18N = {
     },
     "zh": {
         "title": "SoulMusic - 音乐伴侣播放器",
-        "pin_on": "📌 置顶开",
-        "pin_off": "📌 置顶关",
-        "clip_on": "📋 监听开",
-        "clip_off": "📋 监听关",
-        "clip_mode_play": "复制即播",
-        "clip_mode_queue": "复制入队",
+        "pin_on": "📌 置顶",
+        "pin_off": "📌 置顶",
+        "clip_on": "📋 监听",
+        "clip_off": "📋 监听",
+        "clip_mode_play": "▶ 自动",
+        "clip_mode_queue": "+ 队列",
         "lang_toggle": "🌐 EN",
         "cache_prefix": "缓存",
         "queue_btn": "队列 ({count})",
@@ -563,13 +563,13 @@ class SoulMusicApp(ctk.CTk):
         # Window settings
         self.title(self.t("title"))
         self.configure(fg_color=COLOR_BG)
-        self.compact_height = 330
-        self.expanded_height = 570
-        self.window_width = 570
+        self.compact_height = 340
+        self.expanded_height = 580
+        self.window_width = 630
         self.queue_visible = False
         self.search_visible = False
         self.geometry(f"{self.window_width}x{self.compact_height}")
-        self.minsize(530, self.compact_height)
+        self.minsize(580, self.compact_height)
         self.attributes("-topmost", bool(self.config_data.get("always_on_top", True)))
 
         # Initialize audio engine
@@ -660,11 +660,31 @@ class SoulMusicApp(ctk.CTk):
             self.btn_theme.configure(text="🌙" if self.theme_mode == "light" else "☀️")
 
     def resolve_and_play(self, query, hint_duration=0.0):
+        self.safe_ui_call(self.set_loading, True)
+        self.safe_ui_call(self.set_status, self.t("searching", query=query))
+        self.safe_ui_call(self.lbl_title.configure, text=query)
+        self.safe_ui_call(self.lbl_artist.configure, text="Searching audio source...")
+
+        # 1. Smart match with candidate scoring (filters karaoke/covers and checks duration)
         matched = self.find_best_ytmusic_match(query, target_duration=hint_duration)
+
+        # 2. Direct v1 fallback if smart match found nothing
+        if not matched:
+            try:
+                results = self.ytmusic.search(query, filter="songs") or self.ytmusic.search(query) or []
+                for r in results:
+                    if r.get("videoId"):
+                        matched = format_ytmusic_item(r)
+                        break
+            except Exception as e:
+                logger.error("Direct search fallback failed: %s", e)
+
         if matched:
             self.add_track_to_queue(matched, play_now=True)
         else:
-            self.search_top_candidates(query)
+            self.safe_ui_call(self.set_loading, False)
+            self.safe_ui_call(self.set_status, f"Audio source not found: {query}", COLOR_DANGER)
+            self.safe_ui_call(self.btn_play_pause.configure, text=self.t("play_btn"))
 
     def t(self, key, **kwargs):
         """Translate key into current language"""
@@ -719,49 +739,49 @@ class SoulMusicApp(ctk.CTk):
         self.btn_topmost = ctk.CTkButton(
             top_bar,
             text=self._topmost_label(),
-            width=80,
+            width=62,
             height=26,
             font=ctk.CTkFont(family="Segoe UI", size=11),
             fg_color=COLOR_GREEN if self.config_data.get("always_on_top", True) else COLOR_ELEVATED,
-            hover_color=COLOR_GREEN_HOVER if self.config_data.get("always_on_top", True) else "#333333",
+            hover_color=COLOR_GREEN_HOVER if self.config_data.get("always_on_top", True) else COLOR_HOVER,
             text_color="#000000" if self.config_data.get("always_on_top", True) else COLOR_TEXT,
             corner_radius=13,
             command=self.toggle_topmost,
         )
-        self.btn_topmost.pack(side="left", padx=(0, 6))
+        self.btn_topmost.pack(side="left", padx=(0, 5))
 
         self.btn_clip = ctk.CTkButton(
             top_bar,
             text=self._clipboard_label(),
-            width=96,
+            width=64,
             height=26,
             font=ctk.CTkFont(family="Segoe UI", size=11),
             fg_color=COLOR_GREEN if self.clipboard_enabled else COLOR_ELEVATED,
-            hover_color=COLOR_GREEN_HOVER if self.clipboard_enabled else "#333333",
+            hover_color=COLOR_GREEN_HOVER if self.clipboard_enabled else COLOR_HOVER,
             text_color="#000000" if self.clipboard_enabled else COLOR_TEXT,
             corner_radius=13,
             command=self.toggle_clipboard,
         )
-        self.btn_clip.pack(side="left", padx=(0, 6))
+        self.btn_clip.pack(side="left", padx=(0, 5))
 
         self.btn_clip_mode = ctk.CTkButton(
             top_bar,
             text=self._clip_mode_label(),
-            width=80,
+            width=68,
             height=26,
             font=ctk.CTkFont(family="Segoe UI", size=11),
             fg_color=COLOR_ELEVATED,
-            hover_color="#333333",
+            hover_color=COLOR_HOVER,
             text_color=COLOR_SUBTEXT,
             corner_radius=13,
             command=self.toggle_clipboard_mode,
         )
-        self.btn_clip_mode.pack(side="left", padx=(0, 6))
+        self.btn_clip_mode.pack(side="left", padx=(0, 5))
 
         self.btn_lang = ctk.CTkButton(
             top_bar,
             text=self.t("lang_toggle"),
-            width=68,
+            width=58,
             height=26,
             font=ctk.CTkFont(family="Segoe UI", size=11),
             fg_color=COLOR_ELEVATED,
@@ -770,12 +790,12 @@ class SoulMusicApp(ctk.CTk):
             corner_radius=13,
             command=self.toggle_language,
         )
-        self.btn_lang.pack(side="left", padx=(0, 6))
+        self.btn_lang.pack(side="left", padx=(0, 5))
 
         self.btn_theme = ctk.CTkButton(
             top_bar,
             text="🌙" if self.theme_mode == "light" else "☀️",
-            width=36,
+            width=34,
             height=26,
             font=ctk.CTkFont(size=12),
             fg_color=COLOR_ELEVATED,
@@ -784,12 +804,12 @@ class SoulMusicApp(ctk.CTk):
             corner_radius=13,
             command=self.toggle_theme,
         )
-        self.btn_theme.pack(side="left", padx=(0, 6))
+        self.btn_theme.pack(side="left", padx=(0, 5))
 
         self.btn_cache = ctk.CTkButton(
             top_bar,
             text=f"{self.t('cache_prefix')} 0MB",
-            width=86,
+            width=76,
             height=26,
             font=ctk.CTkFont(family="Segoe UI", size=11),
             fg_color=COLOR_ELEVATED,
@@ -803,7 +823,7 @@ class SoulMusicApp(ctk.CTk):
         self.btn_queue_toggle = ctk.CTkButton(
             top_bar,
             text=self.t("queue_btn", count=0),
-            width=82,
+            width=84,
             height=26,
             font=ctk.CTkFont(family="Segoe UI", size=11),
             fg_color=COLOR_ELEVATED,
@@ -838,8 +858,8 @@ class SoulMusicApp(ctk.CTk):
             width=32,
             height=36,
             fg_color=COLOR_ELEVATED,
-            hover_color="#383838",
-            text_color=COLOR_SUBTEXT,
+            hover_color=COLOR_HOVER,
+            text_color=COLOR_TEXT,
             corner_radius=8,
             command=self.clear_search_input,
         )
@@ -967,7 +987,7 @@ class SoulMusicApp(ctk.CTk):
             height=34,
             font=ctk.CTkFont(family="Segoe UI", size=11),
             fg_color=COLOR_ELEVATED,
-            hover_color="#333333",
+            hover_color=COLOR_HOVER,
             text_color=COLOR_SUBTEXT,
             corner_radius=8,
             command=self.cycle_play_mode,
@@ -981,7 +1001,8 @@ class SoulMusicApp(ctk.CTk):
             height=34,
             font=ctk.CTkFont(size=14),
             fg_color=COLOR_ELEVATED,
-            hover_color="#333333",
+            hover_color=COLOR_HOVER,
+            text_color=COLOR_TEXT,
             corner_radius=8,
             command=self.play_prev,
         )
@@ -1008,7 +1029,8 @@ class SoulMusicApp(ctk.CTk):
             height=34,
             font=ctk.CTkFont(size=13),
             fg_color=COLOR_ELEVATED,
-            hover_color="#333333",
+            hover_color=COLOR_HOVER,
+            text_color=COLOR_TEXT,
             corner_radius=8,
             command=self.stop_music,
         )
@@ -1021,7 +1043,8 @@ class SoulMusicApp(ctk.CTk):
             height=34,
             font=ctk.CTkFont(size=14),
             fg_color=COLOR_ELEVATED,
-            hover_color="#333333",
+            hover_color=COLOR_HOVER,
+            text_color=COLOR_TEXT,
             corner_radius=8,
             command=self.play_next,
         )
@@ -1120,7 +1143,7 @@ class SoulMusicApp(ctk.CTk):
         self.btn_topmost.configure(
             text=self._topmost_label(),
             fg_color=COLOR_GREEN if new_val else COLOR_ELEVATED,
-            hover_color=COLOR_GREEN_HOVER if new_val else "#333333",
+            hover_color=COLOR_GREEN_HOVER if new_val else COLOR_HOVER,
             text_color="#000000" if new_val else COLOR_TEXT,
         )
         self.persist_config()
@@ -1131,7 +1154,7 @@ class SoulMusicApp(ctk.CTk):
         self.btn_clip.configure(
             text=self._clipboard_label(),
             fg_color=COLOR_GREEN if self.clipboard_enabled else COLOR_ELEVATED,
-            hover_color=COLOR_GREEN_HOVER if self.clipboard_enabled else "#333333",
+            hover_color=COLOR_GREEN_HOVER if self.clipboard_enabled else COLOR_HOVER,
             text_color="#000000" if self.clipboard_enabled else COLOR_TEXT,
         )
         self.set_status(self.t("status_clip_on") if self.clipboard_enabled else self.t("status_clip_off"))
@@ -1190,18 +1213,21 @@ class SoulMusicApp(ctk.CTk):
 
     def set_loading(self, loading):
         self.is_loading = loading
-        if loading:
-            if not self.loading_bar.winfo_ismapped():
-                self.loading_bar.pack(fill="x", pady=(0, 4), before=self.lbl_time_curr.master)
-            self.loading_bar.start()
-        else:
-            self.loading_bar.stop()
-            if self.loading_bar.winfo_ismapped():
-                self.loading_bar.pack_forget()
+        try:
+            if loading:
+                if not self.loading_bar.winfo_ismapped():
+                    self.loading_bar.pack(fill="x", pady=(0, 4), before=self.lbl_time_curr.master)
+                self.loading_bar.start()
+            else:
+                self.loading_bar.stop()
+                if self.loading_bar.winfo_ismapped():
+                    self.loading_bar.pack_forget()
+        except Exception:
+            pass
 
     def refresh_cache_badge(self):
         cnt, mb = get_cache_stats()
-        self.btn_cache.configure(text=f"{self.t('cache_prefix')} {mb:.0f}MB ({cnt})")
+        self.btn_cache.configure(text=f"{self.t('cache_prefix')} {mb:.0f}MB")
 
     def clear_cache_action(self):
         removed = enforce_lru_cache_limit(max_mb=0.001, protect_path=self.current_file)
@@ -1478,7 +1504,7 @@ class SoulMusicApp(ctk.CTk):
                 anchor="w",
                 height=30,
                 fg_color="transparent",
-                hover_color="#303030",
+                hover_color=COLOR_HOVER,
                 text_color=COLOR_GREEN if is_curr else COLOR_TEXT,
                 font=ctk.CTkFont(family="Segoe UI", size=12, weight="bold" if is_curr else "normal"),
                 command=lambda i=idx: self.play_track_at_index(i),
@@ -1544,8 +1570,8 @@ class SoulMusicApp(ctk.CTk):
                 width=64,
                 height=28,
                 font=ctk.CTkFont(family="Segoe UI", size=11),
-                fg_color="#333333",
-                hover_color="#444444",
+                fg_color=COLOR_ELEVATED,
+                hover_color=COLOR_HOVER,
                 text_color=COLOR_TEXT,
                 corner_radius=6,
                 command=lambda t=track: self.add_track_to_queue(t, play_now=False),
@@ -1588,7 +1614,7 @@ class SoulMusicApp(ctk.CTk):
         else:
             self.set_status(self.t("searching", query=query))
             self.set_loading(True)
-            threading.Thread(target=self.search_top_candidates, args=(query,), daemon=True).start()
+            threading.Thread(target=self.resolve_and_play, args=(query,), daemon=True).start()
 
     def monitor_clipboard(self):
         while not self.stop_event.is_set():
@@ -1868,6 +1894,8 @@ class SoulMusicApp(ctk.CTk):
                         }
                     ],
                 }
+                if shutil.which("node"):
+                    ydl_opts["js_runtimes"] = {"node": {}}
                 if os.path.exists(FFMPEG_BIN):
                     ydl_opts["ffmpeg_location"] = os.path.dirname(FFMPEG_BIN)
 

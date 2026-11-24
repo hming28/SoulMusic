@@ -209,14 +209,8 @@ class TestPhase1AudioCoreAndControls(unittest.TestCase):
 
     def test_09_playlist_navigation(self):
         """Verify Previous and Next buttons operate on playlist queue"""
-        # Find 3 real cached MP3 video IDs
-        cached_ids = []
-        for f in os.listdir(AUDIO_CACHE_DIR):
-            if f.endswith(".mp3"):
-                cached_ids.append(f[:-4])
-                if len(cached_ids) >= 3:
-                    break
-
+        self.app.play_mode = "list"
+        cached_ids = ["track_0", "track_1", "track_2"]
         self.app.playlist = [
             {"title": f"Track {i}", "artist": f"Artist {i}", "display": f"Artist {i} - Track {i}", "video_id": cid}
             for i, cid in enumerate(cached_ids)
