@@ -7,7 +7,7 @@
 [![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-blue?style=flat)]()
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat)](LICENSE)
-[![Release](https://img.shields.io/badge/Release-v2.0.0-orange?style=flat)]()
+[![Release](https://img.shields.io/badge/Release-v2.1-orange?style=flat)]()
 [![GUI](https://img.shields.io/badge/GUI-CustomTkinter-teal?style=flat)]()
 
 *Modern Card UI · High-Res Cover Art · Smart Audio Scoring · Batch Playlist Resolution · Zero-Login*
@@ -90,31 +90,33 @@ It also serves as a standalone music workstation, supporting direct search, queu
 
 ---
 
-## 🚀 Quick Start (3 Minutes)
+## 🚀 Quick Start
 
-### Step 1: Install Python
-Ensure Python 3.9 or higher is installed (make sure **Add Python to PATH** is selected).
+### ⚡ One-Command Install & Run (Recommended)
+Run a single command on any new laptop (automatically handles Python, virtual environment `.venv`, dependencies, FFmpeg, Desktop shortcut, and launch):
 
-### Step 2: Clone and Install Dependencies
-```bash
-git clone https://github.com/hming28/SoulMusic.git
-cd SoulMusic
-pip install -r requirements.txt
-```
-
-### Step 3: Get FFmpeg (Recommended)
-FFmpeg provides high-speed audio stream demuxing. Windows users can run:
-```powershell
-powershell -ExecutionPolicy Bypass -File .\get_ffmpeg.ps1
-```
-*(If FFmpeg is already installed and in your system PATH, you can skip this step.)*
-
-### Step 4: Run SoulMusic
-- **Windows Users**: Double-click **`run.bat`** (automatically checks and installs dependencies).
-- **Command Line**:
-  ```bash
-  python soulmusic.py
+- **Windows (PowerShell)**:
+  ```powershell
+  irm https://raw.githubusercontent.com/hming28/SoulMusic/main/install.ps1 | iex
   ```
+- **macOS / Linux (Bash)**:
+  ```bash
+  curl -fsSL https://raw.githubusercontent.com/hming28/SoulMusic/main/install.sh | bash
+  ```
+
+### 🛠️ Manual Setup
+1. **Clone & Run (Windows)**:
+   ```powershell
+   git clone https://github.com/hming28/SoulMusic.git && cd SoulMusic && .\run.bat
+   ```
+   *(Double-clicking `run.bat` automatically creates `.venv`, installs `requirements.txt`, downloads FFmpeg if missing, and starts SoulMusic.)*
+2. **Command Line (Cross-platform)**:
+   ```bash
+   git clone https://github.com/hming28/SoulMusic.git
+   cd SoulMusic
+   pip install -r requirements.txt
+   python soulmusic.py
+   ```
 
 ---
 
@@ -149,9 +151,11 @@ powershell -ExecutionPolicy Bypass -File .\get_ffmpeg.ps1
 ```text
 SoulMusic/
 ├── soulmusic.py             # Main v2.0.0 CustomTkinter application
+├── install.ps1              # One-command Windows installer & launcher
+├── install.sh               # One-command macOS/Linux installer & launcher
 ├── requirements.txt         # Core dependencies (customtkinter, Pillow, mutagen, etc.)
 ├── get_ffmpeg.ps1           # Automated FFmpeg build downloader
-├── run.bat                  # One-click Windows launcher with auto dependency check
+├── run.bat                  # One-click Windows launcher (.venv + deps + FFmpeg)
 ├── test_phase1.py           # Comprehensive unit test suite (20/20 passing)
 ├── test_integration.py      # End-to-end integration test
 ├── .gitignore               # Git ignore rules
@@ -200,18 +204,31 @@ SoulMusic/
 
 ---
 
-## 🚀 3分钟快速上手
+## 🚀 快速上手
 
-1. **安装依赖**：
+### ⚡ 一行命令下载并直接运行（推荐）
+在任何一台新电脑上，只需执行一条命令即可自动完成下载、Python 环境检查（Windows 支持自动安装）、`.venv` 虚拟环境配置、依赖安装、FFmpeg 下载、创建桌面快捷方式并启动程序：
+
+- **Windows (PowerShell)**：
+  ```powershell
+  irm https://raw.githubusercontent.com/hming28/SoulMusic/main/install.ps1 | iex
+  ```
+- **macOS / Linux (Bash)**：
+  ```bash
+  curl -fsSL https://raw.githubusercontent.com/hming28/SoulMusic/main/install.sh | bash
+  ```
+
+### 🛠️ 手动 / 本地运行
+1. **一行克隆并启动（Windows）**：
+   ```powershell
+   git clone https://github.com/hming28/SoulMusic.git && cd SoulMusic && .\run.bat
+   ```
+   *（双击或运行 `run.bat` 会自动创建 `.venv`、安装 `requirements.txt`、补齐 FFmpeg 并启动程序。）*
+2. **命令行启动**：
    ```bash
    pip install -r requirements.txt
+   python soulmusic.py
    ```
-2. **下载 FFmpeg（Windows 用户可选）**：
-   ```powershell
-   powershell -ExecutionPolicy Bypass -File .\get_ffmpeg.ps1
-   ```
-3. **启动运行**：
-   - 双击运行 **`run.bat`**（内置依赖自动补全功能）或在终端执行 `python soulmusic.py`。
 
 ---
 
